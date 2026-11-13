@@ -56,6 +56,48 @@ Với mỗi kịch bản đắt nhất:
 - 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
 - Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
 
+#### 3.1. Kịch bản 7: Cấp cứu y khoa - "Mình bị đau ngực, khó thở, có thuộc gì không"
+- AI nói "Dấu hiệu đau ngực và khó thở có thể là biểu hiện của tình trạng cấp cứu nguy hiểm (tim mạch hoặc suy hô hấp). Trợ lý AI KHÔNG ĐƯỢC PHÉP gợi ý thuốc cho tình huống này. Bạn hãy đến ngay cơ sở y tế gần nhất hoặc nhấn nút gọi 115 bên dưới ngay lập tức."
+- Kết quả người dùng có thể nhận được là bảng quảng cáo màu đỏ và to gây sự chú ý ở đầu màn hình, đồng thời cũng có nút gọi khẩn cấp cấp cứu; danh sách các bệnh viện, trung tâm y tế có phòng cấp cứu gần nhất kèm theo số điện thoại và bản đồ show vị trí. Disable toàn bộ các ô nhập liệu mua hàng hay các thẻ gợi ý sản phẩm, các option hay interaction mua hàng đặt hàng.
+- Bước tiếp theo của người dùng là phải gọi cho số cấp cứu khẩn cấp 115 hoặc tra cứu cơ sở y tế(bệnh viện, trung tâm y tế) gần nhất. Trong trường hợp có nhầm lẫn sẽ có nút phụ với nội dung "Tôi không sao cả/Tôi đã an toàn/..."
+- AI kích hoạt tool "khuyen_di_kham", hệ thống báo động khẩn cấp tới bảng trực của người NVYT trực ca đêm dường như là tức thi, ghi nhận log khách có triệu chứng nguy hiểm, cấp cứu để nếu khách vẫn ở lại chat thì dược sĩ sẽ can thiệp hỗ trợ tức thì.
+- Quyết định của AI:
+  - Cân nhắc: (1) Hỏi lại để làm rõ triệu chứng người bệnh. (2) Trả lời kèm giới hạn (gợi ý loại thuốc nào đó kèm dặn đi khám). (3) Dừng ngay, từ chối bán thuốc à kích hoạt chế độ khẩn cấp
+  - AI chọn phương án (3)
+  - Nguyên nhân: Các tình trạng triệu chứng như đau ngực khó thở liên quan trực tiếp đến các trường hợp khẩn cấp gây nguy hiểm đến tính mạng của người. Lúc này thời gian vàng chỉ tính bằng đơn vị phút.
+  - Loại các phương án khác vì (1) gây mất thời gian, (2) đưa các đơn thuốc sẽ làm bệnh nhân chủ quan, họ sẽ tưởng uông thuốc sẽ giải quyết được vấn đề nhưng thực tế tình trạng có thể gây tử vong ở họ
+- Loại lỗi
+  - Lỗi ngữ cảnh (Context Error): AI nhận diện đúng từ khóa "đau", "thuốc" và theo thiết kế thương mại thông thường sẽ tìm sản phẩm để bán, nhưng trong ngữ cảnh cấp cứu y khoa thì hành vi bán thuốc là sai lầm chết người.
+  - Cách ứng xử & khắc phục: Không xin lỗi kiểu "Bot chưa hiểu câu hỏi", mà khẳng định dứt khoát ranh giới an toàn: "Vì tính mạng của bạn, hệ thống từ chối bán thuốc và hướng dẫn đi viện."
+- HAX/PAIR
+  - HAX G10 (Thu hẹp phạm vi khi nghi ngờ): Cắt bỏ toàn bộ tính năng thương mại, chỉ tập trung vào hành động cứu hộ duy nhất.
+  - PAIR (Errors + Graceful Failure): Khi gặp tình huống vượt thẩm quyền và nguy cấp, hệ thống tự động chuyển giao trách nhiệm sang kênh cứu nạn ngoại vi (115/bệnh viện).
+
+---
+
+#### 3.2. Kịch bản 2: Đối tượng đặc biệt - "Mình đnag bầu 3 tháng, bị cảm sổ mũi 2 hôm, có thuốc nào không ảnh hưởng em bé không ạ?"
+- AI nói "Chào bạn, thai kỳ 3 tháng đầu là giai đoạn đặc biệt nhạy cảm đối với sự hình thành của thai nhi. Hầu hết các loại thuốc cảm thông thường đều có nguy cơ ảnh hưởng xấu đến em bé. Trợ lý AI không được phép tự chỉ định thuốc cho phụ nữ mang thai. Mình đang chuyển cuộc trò chuyện sang Dược sĩ chuyên môn trực tuyến để hỗ trợ bạn an toàn nhất."
+- Kết quả người dùng có thể nhận được là thẻ thông báo trạng thái "Đang kết nối dược sĩ chuyên môn về vấn đề thai, kèm theo thời gian ước tính ~estimate x phút". Bộ câu hỏi trắc nghiệm nhanh hiển thị trong lúc chờ như "Bạn có sốt 38,5 độ C không?", "Bạn đã dùng thảo dược hay thuốc gì chưa" để AI có thể nắm bắt được tình hình hiện tại của người bệnh cũng như gửi tình hình đó cho dược sĩ để rút ngắn thời gian hỏi tình trạng. Thẻ mẹo chăm sóc an toàn không dùng thuốc (rửa mũi bằng nước muối sinh lý, súc họng) có gán nhãn "Tham khảo tạm thời". Và KHÔNG có nút Đặt Hàng Ngay cho bất kỳ loại thuốc nào khi chưa có sự cho phép của dược sĩ.
+- Người dùng sẽ phải trả lời các câu hỏi trắc nghiệm khảo sát tình trạng bản thân, đọc mẹo vệ sinh mũi họng an toàn trong lúc đợi. Và xuất hiện nút "Huỷ kết nối tới dược sĩ" nếu người hỏi đổi ý hoặc không muốn chờ.
+- AI kích hoạt tool "chuyen_duoc_si", dược sĩ trực online nhận thông báo dưới 30s, được gắn nhãn ưu tiên #ThaiPhu3ThangTuoi, #TrieuChungCamCum cùng bản tóm tắt các câu hỏi sàng lọc.
+- Quyết định của AI:
+  - Cân nhắc: (1) Tự gọi ý sản phẩm không kê đơn được gắn mác "thảo dược an toàn". (2) Hỏi thêm 4-5 câu chi tiết rồi mới quyết định. (3) Dừng gợi ý thuốc, cung cấp biện pháp phi dược lý và chuyển ngay cho Dược sĩ kèm câu hỏi sàng lọc chờ.
+  - AI chọn phương án (3)
+  - Vì tình trạng 3 tháng đầu của thai là thời kỳ tạo phôi và nội tạng cho em bé, nhiều hoạt chất co mạch hay có nguy cơ gây dị tật bẩm sinh; thảo dược cũng có nguy cơ gây co bóp tử cung. AI không đủ thầm quyền y khoa để gánh rui ro này.
+  - Loại (1) vì thảo dược không rõ nguồn gốc/ chống chỉ định vẫn nguy hiểm cho thai nhi. Loại (2) vì dù khách trả lời thế nào thì AI cuối cùng vẫn bắt buộc chuyển dược sĩ, hỏi quá dài chỉ làm khách sốt ruột và bỏ đi tự mua thuốc ngoài.
+- Loại lỗi:
+  - Lỗi hệ thống / Thẩm quyền (Authority Boundary Error): AI không có chứng chỉ hành nghề y dược để đưa ra phác đồ cho đối tượng rủi ro cao.
+  - Cách ứng xử & khắc phục: Minh bạch lý do vì sao không thể kê thuốc và giải thích cặn kẽ vì sao việc gặp Dược sĩ là cần thiết để bảo vệ thai nhi.
+- HAX/PAIR:
+  - HAX G1 (Làm rõ hệ thống làm được gì) & Luật AI 134/2025/QH15 (Điều 11): Thông báo rõ đây là trợ lý AI tự động, chỉ hỗ trợ sàng lọc thông tin và bắt buộc phải có Dược sĩ con người duyệt thuốc.
+  - PAIR (Explainability + Trust): Minh bạch nguyên nhân từ chối (do thai kỳ 3 tháng đầu nhạy cảm), xây dựng lòng tin đúng mức (Calibrated Trust) thay vì tạo cảm giác AI toàn năng.
+
+#### 3.3 Các lỗi chỉ thiết kế mới cứu được
+- **Lỗi**: Nếu AI phản hồi bằng lời cảnh báo rất nghiêm túc: "Thuốc này có thể nguy hiểm cho thai phụ, bạn nên cân nhắc", nhưng ngay bên dưới khung chat giao diện vẫn hiển thị nút [ Mua ngay ] hoặc thẻ sản phẩm kèm giá tiền, người dùng trong lúc lo lắng và bối rối vẫn sẽ bấm mua và uống. Lỗi này sửa prompt hay thay đổi câu chữ AI nói đều vô nghĩa.
+- **Thiết kế**:
+  - Chế độ khóa giao diện (UI State Isolation): Khi bộ phát hiện thực thể (NER / Safety Filter) nhận diện các từ khóa cấp cứu hoặc đối tượng nhạy cảm (bà bầu, trẻ sơ sinh), giao diện lập tức chuyển từ Trạng thái Chat Bán hàng sang Trạng thái Khẩn cấp / Chuyển giao.
+  - Vô hiệu hóa cứng các Tool thương mại (Action Gating): Chặn hoàn toàn lời gọi tool "goi_y_san_pham" ở tầng backend logic, giao diện không render bất kỳ thẻ component giỏ hàng hay thanh toán nào, triệt tiêu hoàn toàn khả năng người dùng vô tình bấm mua.
+
 ## §4. Mức tự chủ  (chặng 4)
 Với mỗi tool:
 - Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
