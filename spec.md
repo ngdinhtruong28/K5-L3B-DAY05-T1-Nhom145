@@ -3,7 +3,7 @@
 Lớp: L3B · Bàn / zone: I · Track: 1
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-|Vươn Toàn Minh Hiếu  |2A202603853 |  |
+|Vương Toàn Minh Hiếu  |2A202603853 |  |
 |Nguyễn Đình Trường |2A202603837 |  |
 |  |  |  |
 
