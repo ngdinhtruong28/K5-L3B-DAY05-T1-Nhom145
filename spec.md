@@ -3,7 +3,7 @@
 Lớp: L3B · Bàn / zone: I · Track: 1
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-|Vũ Toàn Minh Hiếu  |2A202603853 |  |
+|Vương Toàn Minh Hiếu  |2A202603853 |  |
 |Nguyễn Đình Trường |2A202603837 |  |
 |  |  |  |
 
@@ -49,13 +49,6 @@ Lớp lỗi dùng theo 4 loại sau, ghi rõ chữ thay vì ký hiệu số:
   - Hard test nêu: “dấu hiệu cấp cứu lẫn trong câu hỏi mua thuốc” và “người dùng thuốc không phải người nhắn”. Vì vậy, kịch bản cấp cứu và kịch bản người dùng đặc biệt là hai chỗ đắt nhất cần ưu tiên thiết kế.
 
 ## §3. Khi AI sai  (chặng 3)
-Với mỗi kịch bản đắt nhất:
-- AI nói gì (nguyên văn) · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu.
-- Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người — chọn cách nào, đã loại cách nào, vì sao.
-- Loại lỗi (hệ thống / người dùng / ngữ cảnh) và vì sao cách nói, cách sửa đi theo loại đó.
-- 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
-- Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
-
 #### 3.1. Kịch bản 7: Cấp cứu y khoa - "Mình bị đau ngực, khó thở, có thuộc gì không"
 - AI nói "Dấu hiệu đau ngực và khó thở có thể là biểu hiện của tình trạng cấp cứu nguy hiểm (tim mạch hoặc suy hô hấp). Trợ lý AI KHÔNG ĐƯỢC PHÉP gợi ý thuốc cho tình huống này. Bạn hãy đến ngay cơ sở y tế gần nhất hoặc nhấn nút gọi 115 bên dưới ngay lập tức."
 - Kết quả người dùng có thể nhận được là bảng quảng cáo màu đỏ và to gây sự chú ý ở đầu màn hình, đồng thời cũng có nút gọi khẩn cấp cấp cứu; danh sách các bệnh viện, trung tâm y tế có phòng cấp cứu gần nhất kèm theo số điện thoại và bản đồ show vị trí. Disable toàn bộ các ô nhập liệu mua hàng hay các thẻ gợi ý sản phẩm, các option hay interaction mua hàng đặt hàng.
@@ -99,15 +92,51 @@ Với mỗi kịch bản đắt nhất:
   - Vô hiệu hóa cứng các Tool thương mại (Action Gating): Chặn hoàn toàn lời gọi tool "goi_y_san_pham" ở tầng backend logic, giao diện không render bất kỳ thẻ component giỏ hàng hay thanh toán nào, triệt tiêu hoàn toàn khả năng người dùng vô tình bấm mua.
 
 ## §4. Mức tự chủ  (chặng 4)
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
+#### 4.1. Bản phân định mức tự chủ cho 5 tool theo Cost-of-error
+| Tool | Mức tự chủ của nhóm | Chi tiết quy trình duyệt (nếu có) | Lý do theo Cost-of-error (Sai thì ai chịu? Đảo được không? Chờ thì mất gì?) | Phương án đã cân nhắc & Vì sao loại |
+| --- | --- | --- | --- | --- |
+| `ban_thuoc_ke_don` | CẤM | Không áp dụng (Khóa cứng hệ thống). | - Sai thì ai chịu: Khách hàng chịu nguy cơ sốc thuốc/kháng kháng sinh/tử vong; chuỗi nhà thuốc chịu trách nhiệm hình sự và bị tước giấy phép.<br>- Đảo được không: KHÔNG thể đảo ngược khi thuốc đã uống.<br>- Chờ thì mất gì: Không thể vì "tiện/nhanh" mà vi phạm pháp luật y tế. | Đã cân nhắc: Cho Dược sĩ duyệt toa qua ảnh chụp. Loại vì: Quy định hiện hành tại VN cấm bán thuốc kê đơn thuần túy qua tin nhắn chat tự động; cần hệ thống đơn thuốc điện tử quốc gia xác thực. |
+| `khuyen_di_kham` | TỰ LÀM | AI tự kích hoạt ngay khi nhận diện trigger cấp cứu / dấu hiệu nguy hiểm. | - Sai thì ai chịu: Nếu khuyên thừa (False Positive), khách chỉ tốn công đọc hoặc có thể bỏ qua.<br>- Đảo được không: Đảo được (khách có thể bấm bỏ qua).<br>- Chờ thì mất gì: Nếu bắt Dược sĩ duyệt mới phát cảnh báo, bệnh nhân mất "thời gian vàng" cấp cứu (đột quỵ, nhồi máu cơ tim) → Hậu quả chết người. | Đã cân nhắc: Hỏi thêm 2-3 câu làm rõ trước khi khuyên. Loại vì: Kéo dài thời gian của ca cấp cứu là trực tiếp đe dọa tính mạng. |
+| `chuyen_duoc_si` | TỰ LÀM | AI tự kích hoạt khi phát hiện đối tượng nhạy cảm (bầu, trẻ nhỏ, người già, bệnh mạn tính) hoặc khi AI không chắc chắn. | - Sai thì ai chịu: Nếu chuyển nhầm, Dược sĩ tốn 1-2 phút chào và phân loại lại; chuỗi tốn chi phí nhân sự trực ca.<br>- Đảo được không: Đảo được dễ dàng.<br>- Chờ thì mất gì: Chờ vài phút an toàn hơn ngàn lần so với việc để AI đoán mò thuốc cho đối tượng nguy cơ cao. | Đã cân nhắc: Bắt khách bấm nút xác nhận mới chuyển. Loại vì: Người dùng đang sốt ruột/lo lắng, thêm bước bấm làm tăng độ trễ tâm lý. |
+| `luu_ghi_chu_suc_khoe` | CẦN NGƯỜI DUYỆT (Khách duyệt) | - Ai duyệt: Khách hàng bấm tick chọn "Lưu thông tin sức khỏe vào hồ sơ".<br>- Thấy gì trước khi bấm: Bản tóm tắt thông tin sắp lưu (VD: "Dị ứng Paracetamol, Thai 12 tuần") kèm cam kết bảo mật.<br>- Quá hạn/Không bấm: Mặc định KHÔNG lưu; thông tin chỉ tồn tại trong phiên chat hiện tại. | - Sai thì ai chịu: Khách hàng bị rò rỉ dữ liệu cá nhân nhạy cảm (bệnh lý, thai kỳ); công ty vi phạm Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.<br>- Đảo được không: Xóa được nhưng nguy cơ lộ lọt đã xảy ra.<br>- Chờ thì mất gì: Không ảnh hưởng đến việc mua thuốc hay cấp cứu. | Đã cân nhắc: Tự làm (AI tự động lưu để cá nhân hóa lần sau). Loại vì: Dữ liệu y tế là tài sản nhạy cảm tối cao, tự ý lưu mà không có sự đồng thuận (opt-in) là vi phạm đạo đức và pháp lý. |
+| `goi_y_san_pham` | CẦN NGƯỜI DUYỆT (Tool khó xếp nhất — xem phân tích tách bước bên dưới) | - Ai duyệt: Khách hàng tự duyệt qua Checklist an toàn (đối với OTC thông thường); HOẶC Dược sĩ duyệt (đối với ca có dấu hiệu bệnh lý kéo dài).<br>- Thấy gì trước khi bấm: Tên thuốc, hoạt chất, đối tượng chống chỉ định, hộp kiểm "Tôi xác nhận người dùng trên 12 tuổi và không mang thai".<br>- Quá hạn: Không hiển thị nút "Thêm vào giỏ". | - Sai thì ai chịu: Người dùng chịu biến chứng/dị ứng/tác dụng phụ; thuốc đã uống không thể lấy lại.<br>- Đảo được không: KHÔNG thể đảo ngược một khi đã dùng.<br>- Chờ thì mất gì: Khách tốn thêm 5-10 giây để đọc checklist an toàn, nhưng chặn đứng việc mua nhầm thuốc nguy hiểm. | Đã cân nhắc: Cho AI Tự làm hoàn toàn. Loại vì: Quá nguy hiểm, khách thường không nói rõ đối tượng sử dụng ở câu hỏi đầu. |
+
+#### 4.2. Các tool khó xếp nhất và sử dụng tách tool
+Tool được lựa chọn: `goi_y_san_pham`
+- Quan điểm 1: Khách vào nhà thuốc mua sắm ban đêm cần nhanh. Nếu hỏi lọ nước muối sinh lý hay hộp dán cao mà cũng bắt chờ dược sĩ duyệt thì khách sẽ bỏ đi ngay do mất thời gian, trải nghiệm sản phẩm thất bại.
+- Quan điểm 2: Thuốc là mặt hàng đặc thù nên nếu AI tự gợi ý, lỡ khách hỏi chung chung về "thuốc đa bụng" mà AI gợi ý thuốc chống tiêu chảy cho bệnh nhân bị viêm ruột thừa thì càng nâng cao khả năng nguy cơ vỡ ruột thừa và đưa bệnh nhân vào trạng thái nguy kịch, thậm chí là tử vong.
+- Quyết định của nhóm là **Tách tool** trên thành 2 tầng kiểm soát
+  - Tầng 1 (Vật tư y tế/Thực phẩm chức năng/Sản phẩm phi dược lý: nước muối, khẩu trang, bông băng,...): AI được tự làm gợi ý sản phẩm ngay lập tức để giữ tốc độ phản hồi.
+  - Tầng 2 (Thuốc không kê đơn - OTC điều trị triệu chứng: hạ sốt, cảm cúm, đau đầu,...): AI sẽ cần người duyệt (Khách hàng duyệt qua Khoá an toàn). AI chỉ hiển thị sản phẩm ở dạng "Đề xuất tham khảo", nút `Thêm vào giỏ hàng` sẽ bị làm mờ và khách sẽ phải ký cam kết: `[✓] Người dùng thuốc không mang thai, không cho con bú`, `[✓] Độ tuổi người dùng trên 12 tuổi`, `[✓] Chưa dùng thuốc này quá liều trong 24h qua Khi khách tick đủ, nút mua mới kích hoạt. Nếu khách không thỏa mãn, hệ thống tự kích hoạt chuyen_duoc_si.`
+
+#### 4.3. Thử nghiệm mức tự chủ trên 2 kịch bản đắt và 1 kịch bản thường
+#### Ca 1: Kịch bản 7
+- Mức tự chủ kích hoạt: `khuyen_di_kham` (tự làm) được thực hiện luôn; `goi_y_san_pham` và `ban_thuoc_ke_don`, các options này sẽ bị disable
+- Kiểm tra 3 câu hỏi:
+  - Cái sai ở chặng 2 sẽ bị chặn vì AI không thể gọi tool gợi ý thuốc giảm đau/ho để làm dịu giả tạo cơn đau ngực không phải do ho (tim,...).
+  - AI không làm các việc mà nó phải hỏi, hệ thống không hỏi lằng nhằng mà chuyển thẳng sang chế độ nguy hiểm, cấp cứu.
+  - Người dùng sẽ không phải chờ vô ích, cảnh báo 115 sẽ xuất hiện ngay sau một số giây.
+
+#### Ca 2: Kịch bản 2
+- Mức tự chủ kích hoạt: `chuyen_duoc_si` (tự làm) chuyển luồng ngay lập tức; `goi_y_san_pham` nhóm thuốc thuốc bị disable, chỉ cho phép AI gợi ý nước muối rửa mũi (tự làm phi dược lý).
+- Kiểm tra 3 câu hỏi:
+  - Cái sai ở chặng 2 sẽ bị chặn, tránh hoàn toàn việc AI tự ý kế thuốc có thể giải quyết vấn đề của người hỏi nhưng sẽ gây hại cho phôi thai.
+  - AI không làm các việc mà nó phải hỏi, nó hcir thu thập triệu chứng bằng các câu khảo sát trong lúc tìm, chờ Dược sĩ tiếp nhận case.
+  - Người dùng không phải chờ vô ích, việc chờ case của mình được tiếp nhận là cần thiết.
+
+#### Ca 3: Kịch bản thường
+Nhà thuốc gần mình còn nước muối sinh lý không, tối nay mình qua lấy (tin mồi 1)
+- Mức tự chủ kích hoạt: `goi_y_san_pham` (tự làm cho vật tư thông thường)
+- Kiểm tra 3 câu hỏi:
+  - Không có rủi ro y khoa nghiêm trọng
+  - AI không làm những việc nó phải hỏi, AI trả lời đúng tình trạng tồn kho và định vị cửa hàng gần nhất.
+  - Người dùng không phải chờ vô ích, khách sẽ nhận được ngay kết quả, không bị đẩy vào hàng đợi của Dược sĩ 1 cách phiền toái.
+
+#### 4.4. Thay đổi lời hứa với người dùng
+- Cũ: "Trợ lý AI thông minh giải quyết mọi nhu cầu bệnh tật, kê đơn và mua thuốc tức thì trong 5 giây." → Dẫn đến sự ỷ lại mù quáng hoặc mất niềm tin nặng nề khi AI trả lời sai.
+
+- Mới: "Trợ lý AI là bạn đồng hành sàng lọc tin cậy — Giúp bạn tìm nhanh các sản phẩm chăm sóc thông thường, và đóng vai trò màng lọc bảo vệ bạn bằng cách kết nối ngay với Dược sĩ chuyên môn hoặc cơ sở y tế khi có bất kỳ dấu hiệu nguy cơ nào."
+  
 
 ## §5. Prototype  (chặng 5)
 - **Prototype:** [index.html](./prototype/index.html): Không có lời gọi AI thật hay backend. Nút 115 yêu cầu thiết bị/trình duyệt tự thực hiện cuộc gọi; bản đồ chỉ mở trang tìm kiếm, không xác minh vị trí.
