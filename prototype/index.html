@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f8fc" />
+    <title>Hỏi dược sĩ | Pharmacity demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17243b;
+        --muted: #6d7b90;
+        --line: #e6ebf2;
+        --canvas: #f5f8fc;
+        --paper: #fff;
+        --blue: #1163d8;
+        --blue-dark: #0c4eaf;
+        --blue-soft: #edf5ff;
+        --red: #bd2f36;
+        --red-soft: #fff1f0;
+        --amber: #9a6200;
+        --amber-soft: #fff8e9;
+        --green: #237a52;
+        --green-soft: #edf8f1;
+        --shadow: 0 16px 48px rgba(30, 48, 77, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse at 10% 0%, #e8f2ff 0, transparent 34rem),
+          radial-gradient(ellipse at 95% 14%, #eaf8f0 0, transparent 30rem),
+          var(--canvas);
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button { font: inherit; }
+      button:focus-visible, a:focus-visible {
+        outline: 3px solid #78aefa;
+        outline-offset: 3px;
+      }
+
+      .page { width: min(1360px, calc(100% - 40px)); margin: 24px auto 48px; }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        border: 1px solid rgba(226, 233, 242, .9);
+        border-radius: 20px;
+        background: rgba(255,255,255,.82);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand-mark {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        border-radius: 14px;
+        color: white;
+        background: linear-gradient(145deg, #0c60d8, #56a4ff);
+        font-size: 22px;
+        box-shadow: 0 8px 18px rgba(17, 99, 216, .2);
+      }
+      .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+      .brand-caption { margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 650; }
+      .prototype-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 11px;
+        color: #35547b;
+        border: 1px solid #dce8f6;
+        border-radius: 999px;
+        background: #f3f8ff;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .prototype-label span { width: 7px; height: 7px; border-radius: 50%; background: #4a8ee8; }
+
+      .intro { padding: 28px 4px 20px; }
+      .eyebrow {
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+      }
+      h1 { margin: 8px 0 8px; font-size: clamp(26px, 3.2vw, 38px); letter-spacing: -.045em; }
+      .intro p { max-width: 700px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+      .scenario-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+      .scenario-choice {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-height: 76px;
+        padding: 14px 16px;
+        color: var(--ink);
+        text-align: left;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255,255,255,.82);
+        cursor: pointer;
+        transition: .18s ease;
+      }
+      .scenario-choice:hover { transform: translateY(-2px); border-color: #b7d2f7; box-shadow: 0 10px 24px rgba(30,70,120,.08); }
+      .scenario-choice[aria-pressed="true"] { border-color: #8db9f3; background: #f1f7ff; box-shadow: inset 0 0 0 1px #8db9f3; }
+      .scenario-icon {
+        display: grid;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 13px;
+        background: var(--red-soft);
+        font-size: 18px;
+      }
+      .scenario-choice[data-scenario="pregnancy"] .scenario-icon { background: var(--amber-soft); }
+      .scenario-title { display: block; font-size: 14px; font-weight: 800; }
+      .scenario-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+      .workspace { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(360px, .9fr); gap: 20px; align-items: start; }
+      .card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+      .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .card-head h2 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+      .state-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--blue-soft);
+        color: var(--blue-dark);
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .state-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+      .state-pill.urgent { color: var(--red); background: var(--red-soft); }
+      .state-pill.review { color: var(--amber); background: var(--amber-soft); }
+      .state-pill.routed { color: var(--green); background: var(--green-soft); }
+
+      .chat-body {
+        display: flex;
+        min-height: 460px;
+        max-height: 660px;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        padding: 22px;
+        background: linear-gradient(180deg, #f8fafd, #fff 60%);
+        scroll-behavior: smooth;
+      }
+      .message { display: flex; flex-direction: column; gap: 5px; max-width: min(84%, 640px); }
+      .message.user { align-self: flex-end; align-items: flex-end; }
+      .message.assistant { align-self: flex-start; }
+      .message.system { max-width: 100%; }
+      .speaker { padding: 0 3px; color: #8290a3; font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+      .bubble { padding: 13px 15px; border: 1px solid #e8edf4; border-radius: 16px 16px 16px 5px; background: #fff; font-size: 14px; line-height: 1.6; }
+      .message.user .bubble { color: #fff; border-color: var(--blue); border-radius: 16px 16px 5px 16px; background: linear-gradient(145deg, #176bdc, #317de5); }
+      .alert {
+        padding: 14px;
+        border: 1px solid #ffc9c6;
+        border-radius: 15px;
+        color: #7d2428;
+        background: var(--red-soft);
+      }
+      .alert.waiting { border-color: #f0dda9; color: #76520c; background: var(--amber-soft); }
+      .alert.info { border-color: #cfe0f8; color: #345579; background: var(--blue-soft); }
+      .alert-title { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 13px; font-weight: 850; }
+      .alert p { margin: 0; font-size: 13px; line-height: 1.5; }
+      .message-note { color: var(--muted); font-size: 11px; line-height: 1.45; }
+      .principle-marker {
+        display: inline-grid;
+        flex: 0 0 21px;
+        width: 21px;
+        height: 21px;
+        place-items: center;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        color: #fff;
+        background: #254f9c;
+        box-shadow: 0 0 0 1px rgba(37,79,156,.22);
+        font-size: 10px;
+        font-weight: 900;
+        line-height: 1;
+        vertical-align: middle;
+      }
+      .hide-principle-numbers .principle-marker,
+      .hide-principle-numbers .button-marker { display: none; }
+      .hide-principle-numbers .principle-item { grid-template-columns: minmax(0, 1fr); }
+      .bubble-marker { margin-right: 7px; }
+      .alert-title .principle-marker { border-color: currentColor; color: #fff; background: #a12930; }
+      .button-marker {
+        display: inline-grid;
+        width: 18px;
+        height: 18px;
+        place-items: center;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      .response-area { padding: 14px 18px 17px; border-top: 1px solid var(--line); background: #fff; }
+      .response-title { margin-bottom: 10px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+      .response-options { display: flex; flex-wrap: wrap; gap: 8px; }
+      .button {
+        display: inline-flex;
+        min-height: 40px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 13px;
+        border: 1px solid #dce4ef;
+        border-radius: 11px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .16s ease;
+      }
+      .button:hover { transform: translateY(-1px); border-color: #a9c8f2; box-shadow: 0 5px 14px rgba(30,70,120,.08); }
+      .button.primary { color: white; border-color: var(--blue); background: var(--blue); }
+      .button.primary:hover { background: var(--blue-dark); }
+      .button.danger { color: white; border-color: var(--red); background: var(--red); }
+      .button.soft-danger { color: var(--red); border-color: #f2c9c7; background: #fff; }
+      .button.soft-blue { color: var(--blue-dark); border-color: #cfe0f8; background: var(--blue-soft); }
+      .button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+      .response-note { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+
+      .decision { padding: 20px; }
+      .decision-kicker { color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+      .decision-title { margin: 6px 0 5px; font-size: 20px; letter-spacing: -.035em; }
+      .decision-summary { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+      .step-list { display: grid; gap: 0; margin: 20px 0; padding: 0; list-style: none; }
+      .step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 27px 1fr;
+        gap: 10px;
+        min-height: 51px;
+      }
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 25px;
+        bottom: -1px;
+        left: 12px;
+        width: 1px;
+        content: "";
+        background: #dce5ef;
+      }
+      .step-index {
+        z-index: 1;
+        display: grid;
+        width: 25px;
+        height: 25px;
+        place-items: center;
+        border: 1px solid #dce5ef;
+        border-radius: 50%;
+        color: #8390a2;
+        background: white;
+        font-size: 10px;
+        font-weight: 850;
+      }
+      .step.done .step-index { color: #fff; border-color: var(--green); background: var(--green); }
+      .step.current .step-index { color: white; border-color: var(--blue); background: var(--blue); box-shadow: 0 0 0 4px var(--blue-soft); }
+      .step.urgent-step.current .step-index { border-color: var(--red); background: var(--red); box-shadow: 0 0 0 4px var(--red-soft); }
+      .step-copy { padding: 3px 0 14px; }
+      .step-copy strong { display: block; font-size: 12px; }
+      .step-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+      .decision-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .decision-details .detail:last-child { grid-column: 1 / -1; }
+      .detail {
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #fafbfd;
+      }
+      .detail-label { color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+      .detail-value { margin-top: 5px; font-size: 13px; font-weight: 750; line-height: 1.5; }
+      .blocked { display: inline-flex; align-items: center; gap: 6px; color: var(--red); }
+      .blocked::before { content: "×"; display: inline-grid; width: 17px; height: 17px; place-items: center; border-radius: 50%; background: var(--red-soft); font-size: 12px; font-weight: 900; }
+      .allowed { display: inline-flex; align-items: center; gap: 6px; color: var(--green); }
+      .allowed::before { content: "✓"; display: inline-grid; width: 17px; height: 17px; place-items: center; border-radius: 50%; background: var(--green-soft); font-size: 10px; font-weight: 900; }
+      .disclaimer {
+        margin-top: 13px;
+        padding: 11px 12px;
+        border: 1px solid #e4eaf2;
+        border-radius: 12px;
+        color: #5f6e82;
+        background: #f6f8fb;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .disclaimer strong { color: #394b63; }
+      .principle-panel {
+        margin-top: 15px;
+        padding: 14px;
+        border: 1px solid #dfe8f4;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #f8fbff, #fff);
+      }
+      .principle-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+      .principle-heading h4 { margin: 0; font-size: 13px; }
+      .principle-heading span { color: var(--muted); font-size: 9px; font-weight: 750; }
+      .principle-toggle { display: inline-flex; align-items: center; gap: 6px; color: #53647b; font-size: 11px; font-weight: 750; cursor: pointer; white-space: nowrap; }
+      .principle-toggle input { width: 15px; height: 15px; margin: 0; accent-color: var(--blue); cursor: pointer; }
+      .principle-toggle-status { min-height: 14px; margin: -3px 0 9px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+      .principle-list { display: grid; gap: 8px; }
+      .principle-item { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+      .principle-item strong { display: block; font-size: 12px; line-height: 1.45; }
+      .principle-item p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+      .modal-backdrop {
+        position: fixed;
+        z-index: 10;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: rgba(18, 30, 49, .48);
+      }
+      .modal-backdrop[hidden] { display: none; }
+      .modal {
+        width: min(440px, 100%);
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 24px 70px rgba(15, 30, 50, .22);
+      }
+      .modal-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; background: var(--amber-soft); font-size: 19px; }
+      .modal h2 { margin: 13px 0 7px; font-size: 19px; }
+      .modal p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+      @media (max-width: 1020px) {
+        .workspace { grid-template-columns: 1fr; }
+        .chat-body { min-height: 420px; }
+        .decision { padding: 22px; }
+      }
+      @media (max-width: 580px) {
+        .page { width: min(100% - 20px, 520px); margin-top: 10px; }
+        .topbar { padding: 12px; border-radius: 16px; }
+        .prototype-label { padding: 7px 9px; font-size: 10px; }
+        .intro { padding: 25px 3px 17px; }
+        .intro p { font-size: 13px; }
+        .scenario-nav { grid-template-columns: 1fr; gap: 8px; }
+        .scenario-choice { min-height: 68px; gap: 9px; padding: 10px 12px; }
+        .scenario-icon { flex-basis: 32px; width: 32px; height: 32px; font-size: 15px; }
+        .scenario-title { font-size: 12px; }
+        .scenario-subtitle { font-size: 10px; }
+        .card-head { padding: 14px; }
+        .chat-body { min-height: 360px; max-height: 58vh; padding: 14px 12px; }
+        .message { max-width: 94%; }
+        .bubble { font-size: 13px; }
+        .response-area { padding: 13px 12px; }
+        .button { flex: 1 1 auto; }
+        .decision { padding: 15px; }
+        .decision-details { grid-template-columns: 1fr; }
+        .decision-details .detail:last-child { grid-column: auto; }
+        .principle-heading { align-items: flex-start; flex-direction: column; }
+        .principle-item strong { font-size: 11px; }
+        .principle-item p { font-size: 10px; }
+      }
+      @media (min-width: 900px) and (min-height: 720px) {
+        body { height: 100vh; height: 100dvh; overflow: hidden; }
+        .page {
+          display: grid;
+          height: calc(100vh - 24px);
+          height: calc(100dvh - 24px);
+          grid-template-rows: auto auto auto minmax(0, 1fr);
+          gap: 10px;
+          margin: 12px auto;
+        }
+        .topbar { min-height: 48px; padding: 7px 14px; border-radius: 15px; }
+        .brand-mark { width: 34px; height: 34px; border-radius: 11px; font-size: 18px; }
+        .brand-name { font-size: 14px; }
+        .brand-caption { font-size: 10px; }
+        .prototype-label { padding: 6px 9px; font-size: 10px; }
+        .intro { padding: 2px 3px; }
+        .intro h1 { margin: 3px 0 2px; font-size: clamp(20px, 2vw, 26px); }
+        .intro p { max-width: 900px; font-size: 12px; line-height: 1.4; }
+        .eyebrow { font-size: 9px; }
+        .scenario-nav { min-height: 52px; gap: 10px; margin: 0; }
+        .scenario-choice { min-height: 52px; gap: 10px; padding: 7px 11px; border-radius: 13px; }
+        .scenario-icon { flex-basis: 32px; width: 32px; height: 32px; border-radius: 10px; font-size: 15px; }
+        .scenario-title { font-size: 12px; }
+        .scenario-subtitle { margin-top: 2px; font-size: 10px; }
+        .workspace {
+          min-height: 0;
+          grid-template-columns: minmax(0, 1.2fr) minmax(350px, .95fr);
+          gap: 12px;
+        }
+        .workspace > .card { display: flex; min-height: 0; flex-direction: column; }
+        .card-head { min-height: 42px; padding: 9px 13px; }
+        .card-head h2 { font-size: 13px; }
+        .state-pill { padding: 5px 8px; font-size: 9px; }
+        .chat-body { min-height: 0; max-height: none; flex: 1 1 auto; gap: 7px; padding: 11px 13px; overflow-y: auto; }
+        .message { max-width: 90%; gap: 3px; }
+        .speaker { font-size: 8px; }
+        .bubble { padding: 8px 10px; font-size: 11px; line-height: 1.4; }
+        .alert { padding: 8px 10px; border-radius: 11px; }
+        .alert-title { gap: 6px; margin-bottom: 3px; font-size: 10px; }
+        .alert p { font-size: 10px; line-height: 1.35; }
+        .principle-marker { width: 17px; height: 17px; flex-basis: 17px; font-size: 8px; }
+        .button-marker { width: 15px; height: 15px; font-size: 8px; }
+        .response-area { flex: 0 0 auto; padding: 9px 12px 10px; }
+        .response-title { margin-bottom: 6px; font-size: 9px; }
+        .response-options { gap: 6px; }
+        .button { min-height: 32px; gap: 5px; padding: 6px 9px; border-radius: 9px; font-size: 10px; }
+        .response-note { margin-top: 6px; font-size: 9px; line-height: 1.3; }
+        .decision { min-height: 0; padding: 10px 12px; overflow: auto; }
+        .decision-kicker { font-size: 8px; }
+        .decision-title { margin: 3px 0; font-size: 16px; }
+        .decision-summary { font-size: 10px; line-height: 1.35; }
+        .step-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin: 10px 0; }
+        .step { display: block; min-height: 0; }
+        .step:not(:last-child)::after { top: 10px; right: -3px; bottom: auto; left: 25px; width: auto; height: 1px; }
+        .step-index { width: 21px; height: 21px; font-size: 8px; }
+        .step-copy { padding: 5px 3px 0 0; }
+        .step-copy strong { font-size: 9px; }
+        .step-copy span { margin-top: 2px; font-size: 8px; line-height: 1.25; }
+        .decision-details { gap: 6px; }
+        .detail { padding: 7px 8px; border-radius: 10px; }
+        .detail-label { font-size: 8px; }
+        .detail-value { margin-top: 3px; font-size: 10px; line-height: 1.3; }
+        .blocked::before, .allowed::before { width: 14px; height: 14px; font-size: 9px; }
+        .principle-panel { margin-top: 8px; padding: 8px; border-radius: 12px; }
+        .principle-heading { gap: 6px; margin-bottom: 5px; }
+        .principle-heading h4 { font-size: 10px; }
+        .principle-toggle { gap: 4px; font-size: 8px; }
+        .principle-toggle input { width: 12px; height: 12px; }
+        .principle-toggle-status { min-height: 0; margin: 0 0 5px; font-size: 8px; }
+        .principle-list { gap: 5px; }
+        .principle-item { grid-template-columns: 17px 1fr; gap: 6px; padding: 6px; border-radius: 9px; }
+        .principle-item strong { font-size: 9px; line-height: 1.25; }
+        .principle-item p { margin-top: 2px; font-size: 8px; line-height: 1.25; }
+        .hide-principle-numbers .principle-item { grid-template-columns: minmax(0, 1fr); }
+        .disclaimer { margin-top: 7px; padding: 7px 8px; border-radius: 9px; font-size: 8px; line-height: 1.3; }
+      }
+      @media (min-width: 900px) and (min-height: 720px) and (max-height: 790px) {
+        .intro { display: none; }
+        .page { grid-template-rows: auto auto minmax(0, 1fr); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">✚</div>
+          <div>
+            <div class="brand-name">Pharmacity</div>
+            <div class="brand-caption">Hỏi dược sĩ · Trợ lý an toàn</div>
+          </div>
+        </div>
+        <div class="prototype-label"><span></span> Prototype mô phỏng</div>
+      </header>
+
+      <section class="intro">
+        <div class="eyebrow">Track 1 · Y tế</div>
+        <h1>Hỗ trợ đúng lúc, không đoán khi rủi ro cao</h1>
+        <p>Chọn một tình huống để xem AI phát hiện rủi ro, giới hạn quyền gợi ý thuốc và hướng người dùng đến bước an toàn tiếp theo.</p>
+      </section>
+
+      <nav class="scenario-nav" aria-label="Chọn tình huống demo">
+        <button class="scenario-choice" type="button" data-scenario="emergency" aria-pressed="true">
+          <span class="scenario-icon" aria-hidden="true">!</span>
+          <span><span class="scenario-title">Đau ngực, khó thở</span><span class="scenario-subtitle">Dừng tư vấn · ưu tiên cấp cứu</span></span>
+        </button>
+        <button class="scenario-choice" type="button" data-scenario="pregnancy" aria-pressed="false">
+          <span class="scenario-icon" aria-hidden="true">＋</span>
+          <span><span class="scenario-title">Đang mang thai</span><span class="scenario-subtitle">Hỏi sàng lọc · không tự gợi ý thuốc</span></span>
+        </button>
+      </nav>
+
+      <main class="workspace">
+        <section class="card" aria-labelledby="conversation-title">
+          <div class="card-head">
+            <h2 id="conversation-title">Cuộc trò chuyện</h2>
+            <span id="statePill" class="state-pill urgent">Cần xử lý ngay</span>
+          </div>
+          <div id="chatBody" class="chat-body" aria-live="polite" aria-label="Nội dung trò chuyện"></div>
+          <div class="response-area">
+            <div id="responseTitle" class="response-title">Hành động tiếp theo</div>
+            <div id="responseOptions" class="response-options"></div>
+            <p id="responseNote" class="response-note"></p>
+          </div>
+        </section>
+
+        <aside class="card" aria-labelledby="decision-heading">
+          <div class="card-head">
+            <h2 id="decision-heading">Cách hệ thống xử lý</h2>
+            <span class="state-pill" id="decisionMode">Ưu tiên an toàn</span>
+          </div>
+          <div class="decision">
+            <div class="decision-kicker">Quyết định của AI</div>
+            <h3 class="decision-title" id="decisionTitle">Dừng và chuyển hướng</h3>
+            <p class="decision-summary" id="decisionSummary"></p>
+
+            <ol class="step-list" id="stepList" aria-label="Các bước xử lý"></ol>
+
+            <div class="decision-details">
+              <div class="detail">
+                <div class="detail-label">Tín hiệu được nhận diện</div>
+                <div class="detail-value" id="signalValue"></div>
+              </div>
+              <div class="detail">
+                <div class="detail-label">Gợi ý sản phẩm</div>
+                <div class="detail-value blocked">Đã khóa trong tình huống này</div>
+              </div>
+              <div class="detail">
+                <div class="detail-label">Bước hỗ trợ</div>
+                <div class="detail-value" id="supportValue"></div>
+              </div>
+            </div>
+
+            <section class="principle-panel" aria-labelledby="principleHeading">
+              <div class="principle-heading">
+                <h4 id="principleHeading">Chú thích HAX / PAIR</h4>
+                <label class="principle-toggle" for="principleNumbersToggle">
+                  <input id="principleNumbersToggle" type="checkbox" checked />
+                  Hiển thị số HAX/PAIR
+                </label>
+              </div>
+              <p id="principleToggleStatus" class="principle-toggle-status" aria-live="polite">Số trên giao diện khớp với từng nguyên tắc bên dưới.</p>
+              <div class="principle-list" id="principleList" aria-live="polite"></div>
+            </section>
+
+            <div class="disclaimer"><strong>Lưu ý:</strong> Đây là prototype giao diện. Không có lời gọi AI thật; nút hành động không gọi cấp cứu hoặc gửi yêu cầu đến dược sĩ thật.</div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="actionModal" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalBody">
+        <div class="modal-icon" aria-hidden="true" id="modalIcon">ℹ</div>
+        <h2 id="modalTitle"></h2>
+        <p id="modalBody"></p>
+        <div class="modal-actions">
+          <button type="button" class="button primary" id="modalClose">Đã hiểu</button>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const state = {
+        scenario: "emergency",
+        pregnancyStep: 0,
+        medicineAnswer: "",
+        routed: false
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const chatBody = $("chatBody");
+      const responseOptions = $("responseOptions");
+      const modal = $("actionModal");
+
+      function addMessage(role, text, label, tone, marker) {
+        const row = document.createElement("div");
+        row.className = `message ${role}`;
+
+        if (role === "system") {
+          const alert = document.createElement("div");
+          alert.className = `alert ${tone || ""}`.trim();
+          const title = document.createElement("div");
+          title.className = "alert-title";
+          title.textContent = label || "Cảnh báo an toàn";
+          if (marker) title.prepend(createMarker(marker));
+          const body = document.createElement("p");
+          body.textContent = text;
+          alert.append(title, body);
+          row.appendChild(alert);
+        } else {
+          const speaker = document.createElement("div");
+          speaker.className = "speaker";
+          speaker.textContent = role === "user" ? "Bạn" : "Trợ lý";
+          const bubble = document.createElement("div");
+          bubble.className = "bubble";
+          bubble.textContent = text;
+          if (marker) bubble.prepend(createMarker(marker, "bubble-marker"));
+          row.append(speaker, bubble);
+        }
+
+        chatBody.appendChild(row);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function createMarker(number, extraClass) {
+        const marker = document.createElement("span");
+        marker.className = `principle-marker ${extraClass || ""}`.trim();
+        marker.textContent = String(number);
+        marker.setAttribute("aria-label", `Chú thích nguyên tắc ${number}`);
+        return marker;
+      }
+
+      function renderPrinciples(items) {
+        const list = $("principleList");
+        list.replaceChildren();
+        items.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "principle-item";
+          card.appendChild(createMarker(item.number));
+          const content = document.createElement("div");
+          const heading = document.createElement("strong");
+          heading.textContent = item.title;
+          const detail = document.createElement("p");
+          detail.textContent = item.detail;
+          content.append(heading, detail);
+          card.appendChild(content);
+          list.appendChild(card);
+        });
+      }
+
+      function renderSteps(current, urgent) {
+        const steps = [
+          ["Nhận diện", "Phát hiện tín hiệu rủi ro"],
+          ["Chặn gợi ý", "Không hiển thị thuốc / nút mua"],
+          ["Hành động an toàn", urgent ? "Đi khám / gọi cấp cứu" : "Không tự chỉ định thuốc"],
+          ["Chuyển dược sĩ", urgent ? "Báo ca nguy cơ cao" : "Thông báo trong lúc chờ"]
+        ];
+        const list = $("stepList");
+        list.replaceChildren();
+
+        steps.forEach((step, index) => {
+          const item = document.createElement("li");
+          const status = index < current ? "done" : index === current ? "current" : "";
+          item.className = `step ${status} ${urgent && index === current ? "urgent-step" : ""}`;
+          const number = document.createElement("span");
+          number.className = "step-index";
+          number.textContent = index < current ? "✓" : String(index + 1);
+          const copy = document.createElement("span");
+          copy.className = "step-copy";
+          const title = document.createElement("strong");
+          title.textContent = step[0];
+          const detail = document.createElement("span");
+          detail.textContent = step[1];
+          copy.append(title, detail);
+          item.append(number, copy);
+          list.appendChild(item);
+        });
+      }
+
+      function setResponse(title, note, actions) {
+        $("responseTitle").textContent = title;
+        $("responseNote").textContent = note || "";
+        responseOptions.replaceChildren();
+        actions.forEach(({ label, style, onClick, href, marker }) => {
+          const button = document.createElement(href ? "a" : "button");
+          if (href) {
+            button.href = href;
+            if (href.startsWith("http")) {
+              button.target = "_blank";
+              button.rel = "noopener noreferrer";
+            }
+          } else {
+            button.type = "button";
+          }
+          button.className = `button ${style || ""}`.trim();
+          button.textContent = label;
+          if (marker) button.appendChild(createMarker(marker, "button-marker"));
+          if (onClick) button.addEventListener("click", onClick);
+          responseOptions.appendChild(button);
+        });
+      }
+
+      function showModal(title, text, icon) {
+        $("modalTitle").textContent = title;
+        $("modalBody").textContent = text;
+        $("modalIcon").textContent = icon || "ℹ";
+        modal.hidden = false;
+        $("modalClose").focus();
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+      }
+
+      function renderEmergency(context = {}) {
+        state.scenario = "emergency";
+        state.routed = false;
+        const userText = context.userText || "Mình bị đau ngực, khó thở, có thuốc gì không?";
+        const signal = context.signal || "Khách nhắn: “đau ngực, khó thở”";
+        const warning = context.warning || "Đau ngực và khó thở có thể là dấu hiệu của tình trạng cấp cứu nguy hiểm. Trợ lý AI không được phép gợi ý thuốc cho tình huống này.";
+        $("statePill").className = "state-pill urgent";
+        $("statePill").textContent = "Cần xử lý ngay";
+        $("decisionMode").className = "state-pill urgent";
+        $("decisionMode").textContent = "Dừng tư vấn";
+        $("decisionTitle").textContent = "Dừng và hướng dẫn khẩn cấp";
+        $("decisionSummary").textContent = "Có dấu hiệu nguy hiểm được báo. Dừng luồng bán hàng; không hỏi sàng lọc dài hoặc chờ dược sĩ trước khi tìm trợ giúp y tế.";
+        $("signalValue").textContent = signal;
+        $("supportValue").textContent = "Khuyên đi khám ngay; báo nhân viên y tế trực (mô phỏng)";
+        renderSteps(2, true);
+        renderPrinciples([
+          {
+            number: 1,
+            title: "HAX G10 · Thu hẹp phạm vi khi nghi ngờ",
+            detail: "Trong ca đau ngực, khó thở, AI thu hẹp vai trò của mình: không chẩn đoán, không hỏi dài và không gợi ý thuốc; chỉ đưa cảnh báo cùng hướng dẫn tìm trợ giúp khẩn cấp."
+          },
+          {
+            number: 2,
+            title: "Áp dụng HAX G10 · khóa thao tác thương mại",
+            detail: "Vì người dùng đang ở tình huống nguy hiểm, các việc ngoài phạm vi an toàn như xem sản phẩm, thêm giỏ và thanh toán đều bị khóa. Giao diện không vừa cảnh báo vừa thúc đẩy mua thuốc."
+          },
+          {
+            number: 3,
+            title: "PAIR · Errors + Graceful Failure",
+            detail: "AI không thể xử lý cấp cứu qua chat nên không giả vờ giải quyết được; cách thoát an toàn là chỉ rõ giới hạn, hướng người dùng gọi 115 hoặc tìm cơ sở cấp cứu."
+          }
+        ]);
+
+        chatBody.replaceChildren();
+        addMessage("user", userText);
+        addMessage("system", warning, "Cảnh báo khẩn cấp", "", 1);
+        addMessage("assistant", "Mình không thể gợi ý thuốc. Hãy đến ngay cơ sở y tế gần nhất hoặc nhấn nút gọi 115 bên dưới. Đừng chờ phản hồi chat để tìm trợ giúp.");
+        addMessage("system", "Đã khóa gợi ý sản phẩm, đặt hàng và các thao tác mua thuốc. Bảng trực nhân viên y tế nhận cảnh báo ưu tiên (mô phỏng).", "Tính năng mua hàng đã tạm dừng", "", 2);
+        setResponse("Ưu tiên hành động ngay", "Vị trí chưa được xác minh. Mở bản đồ để tự tìm cơ sở cấp cứu gần bạn; nút gọi 115 do bạn chủ động bấm.", [
+          { label: "Gọi cấp cứu 115", style: "danger", href: "tel:115", marker: 3 },
+          { label: "Tìm cơ sở cấp cứu gần tôi", style: "soft-blue", href: "https://www.google.com/maps/search/b%E1%BB%87nh+vi%E1%BB%87n+c%E1%BA%A5p+c%E1%BB%A9u+g%E1%BA%A7n+t%C3%B4i", marker: 3 },
+          { label: "Tôi đã an toàn", style: "", onClick: acknowledgeSafety }
+        ]);
+        updateScenarioButtons();
+      }
+
+      function acknowledgeSafety() {
+        addMessage("user", "Tôi đã an toàn.");
+        addMessage("assistant", "Cảm ơn bạn đã cập nhật. Gợi ý thuốc và mua hàng vẫn bị khóa trong luồng này. Nếu triệu chứng nặng còn tiếp diễn hoặc quay lại, hãy gọi 115 hoặc đến cơ sở y tế ngay.");
+        $("statePill").className = "state-pill review";
+        $("statePill").textContent = "Đã ghi nhận trạng thái";
+        setResponse("Đã ghi nhận", "Đây không phải xác nhận y tế rằng bạn đã hết nguy hiểm.", [
+          { label: "Tìm cơ sở cấp cứu gần tôi", style: "soft-blue", href: "https://www.google.com/maps/search/b%E1%BB%87nh+vi%E1%BB%87n+c%E1%BA%A5p+c%E1%BB%A9u+g%E1%BA%A7n+t%C3%B4i" },
+          { label: "Chạy lại tình huống", style: "", onClick: renderEmergency }
+        ]);
+      }
+
+      function renderPregnancyStart() {
+        state.scenario = "pregnancy";
+        state.pregnancyStep = 0;
+        state.medicineAnswer = "";
+        state.routed = false;
+        $("statePill").className = "state-pill routed";
+        $("statePill").textContent = "Đang kết nối dược sĩ";
+        $("decisionMode").className = "state-pill review";
+        $("decisionMode").textContent = "Chuyển người duyệt";
+        $("decisionTitle").textContent = "Chuyển dược sĩ, hỏi trong lúc chờ";
+        $("decisionSummary").textContent = "Vì bạn đang mang thai, AI không tự chỉ định thuốc. Ca được chuyển ngay; câu hỏi ngắn giúp dược sĩ nắm tình hình sớm hơn.";
+        $("signalValue").textContent = "Khách nhắn: mang thai 3 tháng, sổ mũi 2 ngày";
+        $("supportValue").textContent = "Dược sĩ trực được thông báo trong ≤30 giây (mô phỏng); thời gian phản hồi ước tính ~5–10 phút";
+        renderSteps(3, false);
+        renderPrinciples([
+          {
+            number: 1,
+            title: "HAX G1 · Làm rõ hệ thống làm được gì",
+            detail: "Trong ca mang thai, AI nói rõ mình chỉ hỗ trợ sàng lọc, không có thẩm quyền tự chỉ định thuốc; vì vậy người dùng hiểu lý do cuộc chat được chuyển cho dược sĩ."
+          },
+          {
+            number: 2,
+            title: "PAIR · Explainability + Trust",
+            detail: "Thông báo “đang kết nối dược sĩ” và thời gian chờ dự kiến cho biết hệ thống đang làm gì, giảm cảm giác bị bỏ mặc; đây là độ tin cậy có căn cứ, không hứa AI sẽ tự tìm được thuốc an toàn."
+          },
+          {
+            number: 3,
+            title: "PAIR · Explainability + Trust",
+            detail: "Hai câu hỏi về thuốc đã dùng và dấu hiệu nặng chỉ giúp dược sĩ nhận ca với đủ bối cảnh. AI giải thích mục đích hỏi và không biến câu trả lời thành căn cứ để tự gợi ý thuốc."
+          }
+        ]);
+
+        chatBody.replaceChildren();
+        addMessage("user", "Mình đang bầu 3 tháng, bị cảm sổ mũi 2 hôm, có thuốc nào không ảnh hưởng em bé không ạ?");
+        addMessage("assistant", "Chào bạn, thai kỳ 3 tháng đầu là giai đoạn cần thận trọng. Trợ lý AI không tự chỉ định thuốc; mình đang chuyển cuộc trò chuyện sang dược sĩ chuyên môn để hỗ trợ bạn.", "", "", 1);
+        addMessage("system", "Đang kết nối dược sĩ chuyên môn · thông báo ưu tiên đã gửi (mô phỏng) · phản hồi dự kiến khoảng 5–10 phút (minh họa).", "Đang chờ dược sĩ", "waiting", 2);
+        addMessage("assistant", "Trong lúc chờ, bạn có thể trả lời vài câu ngắn để dược sĩ nắm tình hình. Nếu khó thở, đau ngực, lơ mơ hoặc thấy tình trạng nặng lên, hãy tìm trợ giúp y tế ngay, đừng chờ chat.");
+        addMessage("assistant", "Trong 2 ngày qua, bạn đã dùng thuốc hoặc thảo dược nào chưa?", "", "", 3);
+        addMessage("system", "Tham khảo tạm thời · biện pháp không dùng thuốc: vệ sinh mũi bằng nước muối sinh lý hoặc súc họng nếu phù hợp. Đây không phải lời khuyên dùng thuốc; dược sĩ sẽ xác nhận khi trao đổi.", "Trong lúc chờ", "info");
+        setMedicineChoices();
+        updateScenarioButtons();
+      }
+
+      function setMedicineChoices() {
+        setResponse("Câu hỏi sàng lọc · 1/2", "Câu trả lời được thêm vào tóm tắt bàn giao (mô phỏng). Không cần nhập tên thuốc thật.", [
+          { label: "Chưa dùng", style: "soft-blue", onClick: () => answerMedicine("Chưa dùng thuốc hoặc thảo dược") },
+          { label: "Đã dùng / không chắc", style: "", onClick: () => answerMedicine("Đã dùng hoặc không chắc") },
+          { label: "Hủy kết nối", style: "", onClick: cancelPregnancyTransfer }
+        ]);
+      }
+
+      function answerMedicine(answer) {
+        state.medicineAnswer = answer;
+        addMessage("user", answer);
+        state.pregnancyStep = 1;
+        addMessage("assistant", "Câu 2 / 2: Bạn có sốt từ 38,5°C trở lên hoặc dấu hiệu nặng như khó thở, đau ngực, lơ mơ không?", "", "", 3);
+        setResponse("Câu hỏi sàng lọc · 2/2", "Nếu có dấu hiệu nguy hiểm, dừng câu hỏi và tìm trợ giúp y tế ngay.", [
+          { label: "Có sốt ≥38,5°C", style: "soft-blue", onClick: () => answerSeverity("Có sốt từ 38,5°C trở lên") },
+          { label: "Có dấu hiệu nặng", style: "danger", onClick: escalateToEmergency },
+          { label: "Không có các dấu hiệu trên", style: "soft-blue", onClick: () => answerSeverity("Chưa có sốt ≥38,5°C hoặc dấu hiệu nặng được báo") },
+          { label: "Hủy kết nối", style: "", onClick: cancelPregnancyTransfer }
+        ]);
+        renderSteps(3, false);
+      }
+
+      function escalateToEmergency() {
+        renderEmergency({
+          userText: "Trong lúc sàng lọc, mình chọn “Có dấu hiệu nặng”.",
+          signal: "Người dùng báo có dấu hiệu nặng; chưa xác định cụ thể",
+          warning: "Bạn vừa báo có dấu hiệu nặng. AI dừng câu hỏi sàng lọc và chuyển sang hướng dẫn tìm trợ giúp y tế ngay; không tự suy diễn triệu chứng cụ thể."
+        });
+      }
+
+      function answerSeverity(answer) {
+        addMessage("user", answer);
+        addMessage("assistant", "Cảm ơn bạn. Mình đã thêm câu trả lời vào phần tóm tắt để dược sĩ xem. Gợi ý thuốc và nút mua vẫn bị khóa cho đến khi dược sĩ tư vấn.");
+        $("supportValue").textContent = `Đã thêm vào tóm tắt (mô phỏng): ${state.medicineAnswer}; ${answer.toLowerCase()}`;
+        setResponse("Bạn đang trong hàng chờ dược sĩ", "Bạn có thể hủy yêu cầu nếu đổi ý. Không có dược sĩ thật nhận thông tin từ bản demo.", [
+          { label: "Hủy yêu cầu chuyển", style: "", onClick: cancelPregnancyTransfer },
+          { label: "Chạy lại tình huống", style: "soft-blue", onClick: renderPregnancyStart }
+        ]);
+      }
+
+      function cancelPregnancyTransfer() {
+        if (state.routed) return;
+        state.routed = true;
+        addMessage("user", "Hủy yêu cầu chuyển dược sĩ.");
+        addMessage("assistant", "Yêu cầu hủy đã được ghi nhận trong bản demo. Mình vẫn không thể gợi ý thuốc trong thai kỳ; bạn có thể kết nối lại với dược sĩ bất cứ lúc nào.");
+        $("statePill").className = "state-pill review";
+        $("statePill").textContent = "Đã hủy (mô phỏng)";
+        $("supportValue").textContent = "Yêu cầu hủy được ghi nhận; không có thông báo thật được gửi";
+        setResponse("Gợi ý thuốc vẫn đang khóa", "Việc hủy chờ không đồng nghĩa thuốc đã được xác nhận an toàn.", [
+          { label: "Kết nối lại dược sĩ", style: "primary", onClick: renderPregnancyStart },
+          { label: "Chạy lại tình huống", style: "", onClick: renderPregnancyStart }
+        ]);
+      }
+
+      function updateScenarioButtons() {
+        document.querySelectorAll("[data-scenario]").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.scenario === state.scenario));
+        });
+      }
+
+      document.querySelectorAll("[data-scenario]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (button.dataset.scenario === "emergency") renderEmergency();
+          else renderPregnancyStart();
+        });
+      });
+
+      $("principleNumbersToggle").addEventListener("change", (event) => {
+        const showNumbers = event.currentTarget.checked;
+        document.body.classList.toggle("hide-principle-numbers", !showNumbers);
+        $("principleToggleStatus").textContent = showNumbers
+          ? "Số trên giao diện khớp với từng nguyên tắc bên dưới."
+          : "Đã ẩn số đánh dấu; tên và giải thích nguyên tắc vẫn được giữ.";
+      });
+
+      $("modalClose").addEventListener("click", closeModal);
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.hidden) closeModal();
+      });
+
+      renderEmergency();
+    </script>
+  </body>
+</html>
