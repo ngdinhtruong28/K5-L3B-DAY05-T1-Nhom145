@@ -145,7 +145,12 @@ Nhà thuốc gần mình còn nước muối sinh lý không, tối nay mình qu
 - **Quyết định thiết kế:** dùng hai trạng thái riêng, cảnh báo, tiến trình và nút hành động thay vì một đoạn chat dài hoặc một banner chung. Cách này giúp phân biệt “tìm trợ giúp ngay” với “chờ dược sĩ”, đồng thời làm rõ AI đã khóa việc gì và người dùng có thể làm gì tiếp. Công tắc **Hiển thị số HAX/PAIR** hỗ trợ đối chiếu chú giải; tắt số thì phần giải thích vẫn còn.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+- Tiêu chí Pass/Fail:
+  1. Đau ngực, khó thở: hiện hướng dẫn cấp cứu và khóa gợi ý thuốc ngay — **Pass**.
+  2. Mang thai: chuyển dược sĩ, không hiện thuốc/nút mua và chỉ hỏi tối đa 2 câu sàng lọc — **Pass**.
+  3. Không khiến người dùng tưởng đã gọi cấp cứu/chuyển ca thật — **Pass**: prototype ghi rõ đây là mô phỏng.
+- Lỗi còn lại: chưa có AI/backend thật; prototype chưa xử lý được tin nhắn tự do hoặc xác nhận dịch vụ bên ngoài đã tiếp nhận.
 
 ## §7. Demo
-- Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
+- Ca thử thêm: thai phụ đang chờ dược sĩ nhưng báo có dấu hiệu nặng. Prototype dừng sàng lọc, chuyển sang hướng dẫn cấp cứu và vẫn khóa gợi ý thuốc.
+- Nhóm điều chỉnh: không để ca thai kỳ mặc định chỉ chờ dược sĩ; dấu hiệu nặng phải được ưu tiên cấp cứu ngay.
