@@ -1,6 +1,6 @@
 
 # Bài nộp LAB5 — T1 · Y tế · Nhóm Nhom145
-
+Lớp: L3B · Bàn / zone: I · Track: 1
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
 |Vũ Toàn Minh Hiếu  |2A202603853 |  |
@@ -110,13 +110,13 @@ Thêm:
 - Một mức tự chủ đã đổi lời hứa nào với người dùng.
 
 ## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
+- **Prototype:** [index.html](./index.html), làm bằng HTML/CSS/JavaScript thuần, mở trực tiếp trên trình duyệt. Đây là một màn hình có thể chuyển qua lại giữa hai tình huống; hội thoại, kết nối dược sĩ, thời gian chờ và cảnh báo nhân viên đều là mô phỏng. Không có lời gọi AI thật hay backend. Nút 115 yêu cầu thiết bị/trình duyệt tự thực hiện cuộc gọi; bản đồ chỉ mở trang tìm kiếm, không xác minh vị trí.
+- **Hình 1 — Đau ngực, khó thở:** chụp màn hình khi chọn tình huống cấp cứu, giữ số HAX/PAIR bật. Số **1** trên cảnh báo: HAX G10 — thu hẹp phạm vi, dừng hỏi dài và không gợi ý thuốc. Số **2** trên trạng thái khóa: khóa luồng sản phẩm/đặt hàng để giao diện không mâu thuẫn với cảnh báo. Số **3** cạnh nút gọi 115/tìm cơ sở cấp cứu: PAIR Errors + Graceful Failure — AI thừa nhận giới hạn và hướng sang trợ giúp phù hợp. Mức tự chủ thể hiện: tự dừng gợi ý và kích hoạt `khuyen_di_kham`; người dùng chủ động gọi hoặc tìm cơ sở y tế.
+- **Hình 2 — Mang thai 3 tháng:** chụp màn hình tình huống mang thai, giữ số HAX/PAIR bật. Số **1** cạnh lời AI: HAX G1 — nói rõ AI không tự chỉ định thuốc. Số **2** ở trạng thái kết nối/thời gian chờ: PAIR Explainability + Trust — cho biết ca đang được chuyển và điều gì sẽ xảy ra. Số **3** cạnh câu hỏi: PAIR Explainability + Trust — hỏi ngắn để bổ sung bối cảnh cho dược sĩ, không dùng câu trả lời để tự gợi ý thuốc. Mức tự chủ thể hiện: tự chuyển ca và hỏi sàng lọc; dược sĩ là người hỗ trợ chuyên môn; người dùng có thể hủy kết nối.
+- **Quyết định thiết kế:** dùng hai trạng thái riêng, cảnh báo, tiến trình và nút hành động thay vì một đoạn chat dài hoặc một banner chung. Cách này giúp phân biệt “tìm trợ giúp ngay” với “chờ dược sĩ”, đồng thời làm rõ AI đã khóa việc gì và người dùng có thể làm gì tiếp. Công tắc **Hiển thị số HAX/PAIR** hỗ trợ đối chiếu chú giải; tắt số thì phần giải thích vẫn còn.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
 - 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
-
