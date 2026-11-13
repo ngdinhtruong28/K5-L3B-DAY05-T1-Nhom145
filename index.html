@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pharmacity - Hỏi dược sĩ demo</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --primary: #0f5adf;
+        --primary-soft: #eaf2ff;
+        --warning: #f59e0b;
+        --danger: #dc2626;
+        --danger-soft: #fee2e2;
+        --success: #16a34a;
+        --success-soft: #dcfce7;
+        --gray-1: #111827;
+        --gray-2: #4b5563;
+        --gray-3: #9ca3af;
+        --border: #e5e7eb;
+        --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(135deg, #edf5ff 0%, #f5f7fb 40%, #eef9f3 100%);
+        color: var(--gray-1);
+      }
+
+      .page {
+        max-width: 1300px;
+        margin: 32px auto;
+        padding: 0 18px 36px;
+      }
+
+      .topbar {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid rgba(228,233,240,0.9);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(12px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+      }
+
+      .brand-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #2563eb, #4f9dfd);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 20px;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 0 4px rgba(22,163,74,0.12);
+      }
+
+      .layout {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 22px;
+      }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .chat-shell {
+        padding: 16px;
+      }
+
+      .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 2px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .chat-header strong {
+        font-size: 18px;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .pill.safe {
+        color: var(--success);
+        background: var(--success-soft);
+      }
+
+      .pill.warn {
+        color: var(--warning);
+        background: #fff7d6;
+      }
+
+      .pill.danger {
+        color: white;
+        background: var(--danger);
+      }
+
+      .chat-body {
+        margin-top: 18px;
+        background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 14px;
+        min-height: 430px;
+      }
+
+      .msg {
+        display: flex;
+        margin-bottom: 14px;
+      }
+
+      .msg.user { justify-content: flex-end; }
+
+      .bubble {
+        max-width: 72%;
+        padding: 12px 14px;
+        border-radius: 16px;
+        line-height: 1.5;
+        font-size: 14px;
+        border: 1px solid transparent;
+      }
+
+      .msg.user .bubble {
+        background: var(--primary);
+        color: white;
+        border-radius: 16px 16px 4px 16px;
+      }
+
+      .msg.ai .bubble {
+        background: #f3f6fb;
+        color: var(--gray-1);
+        border-color: #eaeef6;
+        border-radius: 16px 16px 16px 4px;
+      }
+
+      .warning {
+        background: var(--danger-soft);
+        color: #991b1b;
+        border-radius: 14px;
+        border: 1px solid #fecaca;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .quick-actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .action-btn {
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 12px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--gray-1);
+        transition: 0.18s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+        border-color: #bfd7ff;
+        background: #f4f9ff;
+      }
+
+      .action-btn.primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+      }
+
+      .action-btn.danger {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: white;
+      }
+
+      .action-btn.warn {
+        background: #fff7e7;
+        border-color: #f5d58c;
+        color: #8a5a00;
+      }
+
+      .doctor-panel {
+        padding: 18px 18px 20px;
+      }
+
+      .doctor-panel h3 {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .case-switch {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .case-switch button {
+        flex: 1;
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .case-switch button.active {
+        background: var(--primary-soft);
+        border-color: #bdd4ff;
+        color: var(--primary);
+      }
+
+      .meta {
+        display: grid;
+        gap: 10px;
+      }
+
+      .meta-row {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+
+      .smalllabel {
+        font-size: 12px;
+        color: var(--gray-2);
+        margin-bottom: 4px;
+      }
+
+      .value {
+        font-weight: 700;
+      }
+
+      .decision-box {
+        margin-top: 18px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff, #f7fafe);
+      }
+
+      .decision-box h4 {
+        margin: 0 0 8px;
+        font-size: 15px;
+      }
+
+      .decision-type {
+        font-size: 13px;
+        color: var(--gray-2);
+        margin-bottom: 10px;
+      }
+
+      .decision-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .decision-tag {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #eef5ff;
+        color: #214ea3;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .decision-tag.warning {
+        background: #fff7e7;
+        color: #9a5e00;
+      }
+
+      .decision-tag.danger {
+        background: var(--danger-soft);
+        color: #8f1d1d;
+      }
+
+      .decision-tag.success {
+        background: var(--success-soft);
+        color: #166534;
+      }
+
+      .footnote {
+        margin-top: 16px;
+        font-size: 12px;
+        color: var(--gray-2);
+        line-height: 1.5;
+      }
+
+      @media (max-width: 930px) {
+        .layout { grid-template-columns: 1fr; }
+        .page { padding: 0 12px 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-badge">💊</div>
+          <div>
+            <div>Pharmacity</div>
+            <small style="color: var(--gray-2); font-weight: 600;">Hỏi dược sĩ</small>
+          </div>
+        </div>
+        <div class="status"><span class="dot"></span> AI hỗ trợ trực tuyến</div>
+      </header>
+
+      <main class="layout">
+        <section class="panel chat-shell">
+          <div class="chat-header">
+            <strong>Cuộc trò chuyện</strong>
+            <span id="mode-pill" class="pill warn">Cần xác thực thêm</span>
+          </div>
+
+          <div class="chat-body" id="chatBody">
+            <div class="msg ai">
+              <div class="bubble">Xin chào! Tôi là trợ lý Pharmacity. Bạn đang đau/khó chịu ở đâu? Tôi có thể hỏi 3 câu ngắn để an toàn hơn trước khi gợi ý.</div>
+            </div>
+            <div class="msg user">
+              <div class="bubble">Mình bị đau ngực, khó thở, có thuốc gì không?</div>
+            </div>
+            <div class="warning">⚠️ Dấu hiệu cảnh báo cấp cứu: đau ngực/kho khó thở. AI không được gợi ý thuốc và phải khuyên đi khám ngay hoặc gọi cấp cứu nếu cần.</div>
+            <div class="msg ai">
+              <div class="bubble">Tôi không thể gợi ý thuốc trong trường hợp này. Để an toàn, bạn nên đi khám ngay hoặc gọi cấp cứu nếu đang khó thở/đau dữ dội. Tôi có thể chuyển bạn cho dược sĩ hoặc báo nhân viên hỗ trợ ngay.</div>
+            </div>
+            <div class="msg user">
+              <div class="bubble">Mình muốn biết rõ vì sao không được dùng thuốc ở đây.</div>
+            </div>
+            <div class="msg ai">
+              <div class="bubble">Vì đây là dấu hiệu nguy hiểm, không phải tình trạng mua thuốc thông thường; thông tin thiếu và rủi ro cao. Chúng tôi chặn gợi ý thuốc và chuyển sang hỗ trợ khẩn cấp.</div>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <button class="action-btn primary" data-scenario="danger">Xem ca nguy hiểm</button>
+            <button class="action-btn warn" data-scenario="normal">Xem ca bình thường</button>
+            <button class="action-btn danger" data-scenario="doctor">Chuyển dược sĩ</button>
+          </div>
+        </section>
+
+        <aside class="panel doctor-panel">
+          <div class="case-switch">
+            <button class="active" data-case="danger">Ca nguy hiểm</button>
+            <button data-case="normal">Ca lạ</button>
+          </div>
+
+          <div class="meta">
+            <div class="meta-row">
+              <div class="smalllabel">Người sẽ dùng thuốc</div>
+              <div id="personInfo" class="value">Người nhắn đang có dấu hiệu cấp cứu</div>
+            </div>
+            <div class="meta-row">
+              <div class="smalllabel">Mức độ tin cậy</div>
+              <div id="confidenceInfo" class="value">Thấp — thiếu dữ liệu</div>
+            </div>
+            <div class="meta-row">
+              <div class="smalllabel">Hành động AI</div>
+              <div id="actionInfo" class="value">Khuyên đi khám / gọi cấp cứu</div>
+            </div>
+          </div>
+
+          <div class="decision-box">
+            <h4>Quyết định AI</h4>
+            <div id="decisionType" class="decision-type">Không gợi ý thuốc; báo khẩn cấp, chuyển dược sĩ</div>
+            <div class="decision-list" id="decisionList">
+              <span class="decision-tag danger">Cấm gợi ý thuốc</span>
+              <span class="decision-tag warning">Hiện cảnh báo</span>
+              <span class="decision-tag success">Chuyển dược sĩ</span>
+            </div>
+          </div>
+
+          <div class="footnote">
+            Thiết kế này ưu tiên “dừng & chuyển người” khi AI không chắc hoặc khi có dấu hiệu nguy hiểm. Đây là cách giảm rủi ro lớn nhất trong domain y tế, thay vì cố gắng trả lời nhanh và sai.
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      const scenarios = {
+        danger: {
+          pill: 'Cấp cứu / cảnh báo',
+          pillClass: 'pill danger',
+          person: 'Người nhắn đang có dấu hiệu cấp cứu',
+          confidence: 'Thấp — thiếu dữ liệu quan trọng',
+          action: 'Khuyên đi khám / gọi cấp cứu',
+          decisionType: 'Dừng, không gợi ý thuốc, báo khẩn cấp và chuyển hỗ trợ',
+          tags: ['Cấm gợi ý thuốc', 'Hiện cảnh báo', 'Chuyển dược sĩ'],
+          messages: [
+            { role: 'ai', text: 'Xin chào! Tôi là trợ lý Pharmacity. Bạn đang đau/khó chịu ở đâu? Tôi có thể hỏi 3 câu ngắn để an toàn hơn trước khi gợi ý.' },
+            { role: 'user', text: 'Mình bị đau ngực, khó thở, có thuốc gì không?' },
+            { role: 'system', text: '⚠️ Dấu hiệu cảnh báo cấp cứu: đau ngực/kho khó thở. AI không được gợi ý thuốc và phải khuyên đi khám ngay hoặc gọi cấp cứu nếu cần.' },
+            { role: 'ai', text: 'Tôi không thể gợi ý thuốc trong trường hợp này. Để an toàn, bạn nên đi khám ngay hoặc gọi cấp cứu nếu đang khó thở/đau dữ dội. Tôi có thể chuyển bạn cho dược sĩ hoặc báo nhân viên hỗ trợ ngay.' },
+            { role: 'user', text: 'Mình muốn biết rõ vì sao không được dùng thuốc ở đây.' },
+            { role: 'ai', text: 'Vì đây là dấu hiệu nguy hiểm, không phải tình trạng mua thuốc thông thường; thông tin thiếu và rủi ro cao. Chúng tôi chặn gợi ý thuốc và chuyển sang hỗ trợ khẩn cấp.' }
+          ]
+        },
+        normal: {
+          pill: 'Cần hỏi thêm',
+          pillClass: 'pill warn',
+          person: 'Người dùng là phụ nữ mang thai',
+          confidence: 'Trung bình — cần xác thực thêm',
+          action: 'Hỏi thêm thông tin, không gợi ý thuốc tự do',
+          decisionType: 'Hỏi lại + hạn chế, không nhắm lẫn thuốc cho người có rủi ro đặc biệt',
+          tags: ['Hỏi 3 câu ngắn', 'Không gợi ý nước gì', 'Chuyển dược sĩ nếu cần'],
+          messages: [
+            { role: 'ai', text: 'Xin chào! Tôi có thể giúp với các câu hỏi về thuốc và sản phẩm. Trước khi gợi ý, tôi cần biết ai là người dùng thuốc và triệu chứng cụ thể.' },
+            { role: 'user', text: 'Mình đang bầu 3 tháng, bị cảm sổ mũi 2 hôm, có thuốc nào không ảnh hưởng em bé không ạ?' },
+            { role: 'ai', text: 'Vì bạn đang mang thai, tôi không gợi ý thuốc theo kiểu tự do. Tôi cần biết thêm: bạn đang dùng thuốc nào, trẻ có dấu hiệu nặng không, và bạn có dị ứng/điều kiện bệnh nền nào không.' },
+            { role: 'user', text: 'Mình không biết, nhưng chỉ muốn hỏi được không.' },
+            { role: 'ai', text: 'Tôi vẫn không khuyên dùng thuốc tự ý. Nếu có triệu chứng nặng hoặc bạn muốn được tư vấn an toàn, tôi sẽ chuyển cho dược sĩ chuyên môn.' }
+          ]
+        },
+        doctor: {
+          pill: 'Đã chuyển dược sĩ',
+          pillClass: 'pill safe',
+          person: 'Ca được chuyển cho dược sĩ trực tuyến',
+          confidence: 'Đủ thông tin để cấp phát cho người giỏi hơn',
+          action: 'Chuyển ca + tóm tắt trung tâm',
+          decisionType: 'Đã chuyển người, hiển thị tóm tắt trường hợp và thời gian chờ',
+          tags: ['Tóm tắt triệu chứng', 'Chuyển dược sĩ', 'Giữ người dùng trong chuỗi hỗ trợ'],
+          messages: [
+            { role: 'ai', text: 'Tôi đã hiểu triệu chứng và người dùng. Tôi đang chuyển cuộc trò chuyện cho dược sĩ trực tuyến để được hỗ trợ chuyên môn.' },
+            { role: 'system', text: '📌 Tóm tắt ca: người dùng 34 tuổi, mang thai 3 tháng, sổ mũi 2 ngày, chưa dùng thuốc, đang cần xác thực môi trường an toàn trước khi dùng bất cứ sản phẩm nào.' },
+            { role: 'ai', text: 'Dược sĩ sẽ xem chi tiết và phản hồi trong vòng 5–10 phút. Bạn có thể tiếp tục chat hoặc chờ tư vấn.' }
+          ]
+        }
+      };
+
+      const chatBody = document.getElementById('chatBody');
+      const modePill = document.getElementById('mode-pill');
+      const personInfo = document.getElementById('personInfo');
+      const confidenceInfo = document.getElementById('confidenceInfo');
+      const actionInfo = document.getElementById('actionInfo');
+      const decisionType = document.getElementById('decisionType');
+      const decisionList = document.getElementById('decisionList');
+
+      function renderScenario(name) {
+        const data = scenarios[name];
+        modePill.className = data.pillClass;
+        modePill.textContent = data.pill;
+        personInfo.textContent = data.person;
+        confidenceInfo.textContent = data.confidence;
+        actionInfo.textContent = data.action;
+        decisionType.textContent = data.decisionType;
+
+        decisionList.innerHTML = data.tags
+          .map(tag => {
+            const className = tag.includes('Cấm') ? 'danger' : tag.includes('Hiện') ? 'warning' : 'success';
+            return `<span class="decision-tag ${className}">${tag}</span>`;
+          })
+          .join('');
+
+        chatBody.innerHTML = '';
+        data.messages.forEach(msg => {
+          if (msg.role === 'system') {
+            const warning = document.createElement('div');
+            warning.className = 'warning';
+            warning.innerHTML = msg.text;
+            chatBody.appendChild(warning);
+            return;
+          }
+
+          const wrap = document.createElement('div');
+          wrap.className = `msg ${msg.role === 'user' ? 'user' : 'ai'}`;
+
+          const bubble = document.createElement('div');
+          bubble.className = 'bubble';
+          bubble.textContent = msg.text;
+          wrap.appendChild(bubble);
+          chatBody.appendChild(wrap);
+        });
+
+        document.querySelectorAll('[data-case]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.case === name);
+        });
+      }
+
+      document.querySelectorAll('[data-scenario]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          renderScenario(btn.dataset.scenario);
+        });
+      });
+
+      document.querySelectorAll('[data-case]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.case;
+          renderScenario(key);
+        });
+      });
+
+      renderScenario('danger');
+    </script>
+  </body>
+</html>
