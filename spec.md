@@ -1,4 +1,4 @@
-```markdown
+
 # Bài nộp LAB5 — T1 · Y tế · Nhóm Nhom145
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
@@ -61,4 +61,4 @@ Thêm:
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
-```
+
