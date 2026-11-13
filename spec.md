@@ -3,8 +3,8 @@
 Lớp: L3B · Bàn / zone: I · Track: 1
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-|Vương Toàn Minh Hiếu  |2A202603853 |  |
-|Nguyễn Đình Trường |2A202603837 |  |
+|Vương Toàn Minh Hiếu  |2A202603853 |Phần 3: Phân tích AI khi sai, Phần 4: Phân tích mức tự chủ của AI, Phần 6: Tốt là gì |
+|Nguyễn Đình Trường |2A202603837 |Phần 1: Lắt cắt & Phạm vi, Phần 2: Kịch bản rủi ro, Phần 5: Prototype, Phần 6: Tốt là gì|
 |  |  |  |
 
 ## §1. Lát cắt & phạm vi
@@ -146,10 +146,10 @@ Nhà thuốc gần mình còn nước muối sinh lý không, tối nay mình qu
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
 - Tiêu chí Pass/Fail:
-  1. Đau ngực, khó thở: hiện hướng dẫn cấp cứu và khóa gợi ý thuốc ngay — **Pass**.
-  2. Mang thai: chuyển dược sĩ, không hiện thuốc/nút mua và chỉ hỏi tối đa 2 câu sàng lọc — **Pass**.
-  3. Không khiến người dùng tưởng đã gọi cấp cứu/chuyển ca thật — **Pass**: prototype ghi rõ đây là mô phỏng.
-- Lỗi còn lại: chưa có AI/backend thật; prototype chưa xử lý được tin nhắn tự do hoặc xác nhận dịch vụ bên ngoài đã tiếp nhận.
+  1. Khi có dấu hiệu cấp cứu hoặc đối tượng rủi ro, giao diện không hiển thị các sản phẩm thuốc và không render các nút mua hàng — **Pass**.
+  2. Định tuyến khẩn cấp & Giới hạn bước hỏi: Các ca cấp cứu khẩn cấp phải thực hiện ngay nút gọi 115 và tìm cơ sở y tế ở turn chat đầu tiên; ca chuyển Dược sĩ chỉ được hỏi tối đa 2 câu sàng lọc trong lúc khách hàng đang chờ — **Pass**.
+  3. Tuyên bố rõ AI không tự chỉ định thuốc, nhãn biện pháp không dùng thuốc là "Tham khảo tạm thời" và luôn có nút thoát luồng — **Pass**
+- Lỗi còn lại: chưa có AI/backend thật; prototype chưa xử lý được tin nhắn tự do hoặc xác nhận dịch vụ bên ngoài đã tiếp nhận. Người dùng giấu triệu chứng hoặc mua hộ thuốc biệt dược mà không nói rõ người dùng cuối. Chưa có cơ chế xử lý quá hạn nếu Dược sĩ trực đêm quá tải không nhận ca sau 1 khoảng thời gian
 
 ## §7. Demo
 - Ca thử thêm: thai phụ đang chờ dược sĩ nhưng báo có dấu hiệu nặng. Prototype dừng sàng lọc, chuyển sang hướng dẫn cấp cứu và vẫn khóa gợi ý thuốc.
